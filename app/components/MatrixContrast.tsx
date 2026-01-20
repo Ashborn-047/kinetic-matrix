@@ -2,7 +2,11 @@ import { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-export default function MatrixContrast() {
+interface MatrixContrastProps {
+  onSwitchView?: (view: 'home' | 'experiments' | 'preview', tab?: 'source' | 'code', organic?: boolean) => void;
+}
+
+export default function MatrixContrast({ onSwitchView }: MatrixContrastProps) {
   useEffect(() => {
     gsap.utils.toArray('.slide-up-trigger').forEach((el: any) => {
       gsap.to(el, {
@@ -17,7 +21,11 @@ export default function MatrixContrast() {
   return (
     <section className="flex flex-col relative z-20">
       {/* SOURCE Section - Full height */}
-      <div className="w-full min-h-screen bg-[#00ff41] text-black flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 group hover-container relative overflow-hidden border-b border-black/20" data-cursor="Binary">
+      <div
+        onClick={() => onSwitchView?.('preview', 'source', true)}
+        className="w-full min-h-screen bg-[#00ff41] text-black flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 group hover-container relative overflow-hidden border-b border-black/20 cursor-pointer"
+        data-cursor="Binary"
+      >
         {/* BG */}
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: 'linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)', backgroundSize: '20px 20px' }}>
@@ -37,11 +45,19 @@ export default function MatrixContrast() {
             <span>[RAW_DATA]</span>
             <span>[UNCOMPILED]</span>
           </div>
+
+          <div className="mt-8 font-mono text-[10px] uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black text-[#00ff41] px-4 py-1 animate-pulse">
+            [ CLICK_TO_INTERACT_WITH_SOURCE ]
+          </div>
         </div>
       </div>
 
       {/* CODE Section - Full height */}
-      <div className="w-full min-h-screen bg-[#050505] text-[#00ff41] flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 group hover-container border-t border-[#00ff41]/20 relative overflow-hidden" data-cursor="Code">
+      <div
+        onClick={() => onSwitchView?.('preview', 'code', true)}
+        className="w-full min-h-screen bg-[#050505] text-[#00ff41] flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 group hover-container border-t border-[#00ff41]/20 relative overflow-hidden cursor-pointer"
+        data-cursor="Code"
+      >
         <div className="absolute top-0 left-0 w-full h-1 bg-[#00ff41]/30 shadow-[0_0_15px_#00ff41] animate-scanline"></div>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(#00ff41 1px, transparent 1px), linear-gradient(90deg, #00ff41 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
@@ -70,6 +86,12 @@ export default function MatrixContrast() {
               &gt; parsing_segment_0x4B...<br />
               &gt; render_complete.
             </div>
+
+            <div className="absolute inset-0 border border-[#00ff41] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+          </div>
+
+          <div className="mt-12 font-mono text-[10px] uppercase tracking-[0.4em] opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[#00ff41] text-black px-4 py-1 animate-pulse">
+            [ RUN_TECHNICAL_INSPECTION ]
           </div>
         </div>
       </div>

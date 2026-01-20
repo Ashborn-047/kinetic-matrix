@@ -8,20 +8,37 @@ export default function NeuralScraper() {
     useEffect(() => {
         const canvas = canvasRef.current;
         const maskCanvas = maskCanvasRef.current;
-        if (!canvas || !maskCanvas) return;
+        const container = containerRef.current;
+        if (!canvas || !maskCanvas || !container) return;
 
         const ctx = canvas.getContext('2d');
         const mctx = maskCanvas.getContext('2d');
         if (!ctx || !mctx) return;
 
-        let width = canvas.width = maskCanvas.width = canvas.offsetWidth;
-        let height = canvas.height = maskCanvas.height = canvas.offsetHeight;
+        let width = 0;
+        let height = 0;
+
+        const updateDimensions = () => {
+            width = canvas.width = maskCanvas.width = container.offsetWidth;
+            height = canvas.height = maskCanvas.height = container.offsetHeight;
+
+            // Re-initialize mask with solid black on resize/init
+            if (width > 0 && height > 0) {
+                mctx.fillStyle = '#000';
+                mctx.fillRect(0, 0, width, height);
+            }
+        };
+
+        updateDimensions();
 
         // Initialize mask with solid black (fully obscured)
         mctx.fillStyle = '#000';
         mctx.fillRect(0, 0, width, height);
 
         const drawNoise = () => {
+            if (width <= 0 || height <= 0 || isNaN(width) || isNaN(height)) {
+                return;
+            }
             const imageData = ctx.createImageData(width, height);
             const data = imageData.data;
             const time = Date.now() * 0.001;
@@ -41,6 +58,9 @@ export default function NeuralScraper() {
 
         let animationFrameId: number;
         const render = () => {
+            if (width === 0 || height === 0) {
+                updateDimensions();
+            }
             drawNoise();
             animationFrameId = requestAnimationFrame(render);
         };
@@ -48,11 +68,7 @@ export default function NeuralScraper() {
         render();
 
         const handleResize = () => {
-            width = canvas.width = maskCanvas.width = canvas.offsetWidth;
-            height = canvas.height = maskCanvas.height = canvas.offsetHeight;
-            // Keep mask black on resize for simplicity or recreate with black
-            mctx.fillStyle = '#000';
-            mctx.fillRect(0, 0, width, height);
+            updateDimensions();
         };
 
         window.addEventListener('resize', handleResize);
@@ -90,7 +106,7 @@ export default function NeuralScraper() {
     return (
         <div
             ref={containerRef}
-            className="relative w-full h-full bg-[#020a02] overflow-hidden group cursor-crosshair select-none"
+            className="relative w-full h-[600px] bg-[#020a02] overflow-hidden group cursor-crosshair select-none"
             onMouseMove={handleMouseMove}
         >
             {/* Underlying "Neural Intent" Layer - This is the target we are revealing */}
